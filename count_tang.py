@@ -5,7 +5,7 @@ from  urllib import urlopen
 import os
 
 username = 'zhangyingjie'
-root = '/home/'+username+'/poetry/chinese-poetry/json_new/'
+root = '/home/'+username+'/poetry/chinese-poetry/json_with_type/'
 
 punct_type = u"punct"
 clear_type = u"clear"
@@ -84,6 +84,25 @@ def count_all(root, start="poet.song"):
             count_all_s8 += s8
     return count_all_5,count_all_p2,count_all_p4, count_all_p8, count_all_7,count_all_s2,count_all_s4, count_all_p8
 
+def count_num_paragraph(root, start="poet.song",poem_style=16, poem_jv=4):
+    count_sum = 0
+
+    for file in os.listdir(root):
+        if file.startswith(start):
+            file_destiny = root + file
+            u = urlopen(file_destiny)
+            data = json.loads(u.read().decode('utf-8'))
+            for resp in data:
+                if resp:
+                    t = resp.get("type")
+                    try:
+                        if t == clear_type and len(resp.get("paragraphs")[0]) == poem_style and len(resp.get("paragraphs")) == poem_jv :
+                             count_sum += 1
+                    except IndexError:
+                        print(file_destiny)
+
+    return count_sum
+
 
 def count_num(root, start="poet.song"):
     punct_count = 0
@@ -92,8 +111,8 @@ def count_num(root, start="poet.song"):
     try:
         for file in os.listdir(root):
             if file.startswith(start):
-                file_punct = root + file
-                u = urlopen(file_punct)
+                file_new = root + file
+                u = urlopen(file_new)
                 data = json.loads(u.read().decode('utf-8'))
                 for resp in data:
                     if resp:
@@ -108,17 +127,15 @@ def count_num(root, start="poet.song"):
         print("unicode object has no attribute 'get' ")
     return punct_count, diff_count, clear_count
 
-def count_clear(root, start="poet.song"):
-    for file in os.listdir(root):
-        file_check = root + file
-        u = urlopen(file)
-        resp = json.loads(u.read().decode('utf-8'))
 
 if __name__ == '__main__':
     # five,five_2,five_4,five_8,  seven, seven_2,seven_4 , seven_8= count_all(root,"poet.tang")
     # print("五言: {five}, 五言2句: {five_2}, 五言4句 {five_4}, 五言8句: {five_8},"
     #       " 七言: {seven} , 七言2句:{seven_2}, 七言4句 {seven_4} ,七言8句: {seven_8} ".format(five=five, five_2=five_2, \
     #     five_4 =five_4, five_8=five_8,seven=seven, seven_2=seven_2, seven_4=seven_4, seven_8=seven_8))
+    #
+    # p, d ,c = count_num(root)
+    # print("punct :{p}, diff :{d}, clear:{c}".format(p=p, d=d, c=c) )
 
-    p, d ,c = count_num(root)
-    print("punct :{p}, diff :{d}, clear:{c}".format(p=p, d=d, c=c) )
+    s = count_num_paragraph(root, "poet.song", 16, 6)
+    print(s)

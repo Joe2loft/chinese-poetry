@@ -20,7 +20,7 @@ def contain_punct(paras):
     Flag = False
     if paras:
         for para in paras:
-            if "(" in para or '[' in para or '《' in para or '{' in para:
+            if "(" in para or '[' in para or '《' in para or '{' in para or '：' in para:
                 Flag = True
     return Flag
 
@@ -40,20 +40,20 @@ def main():
         if file.startswith("poet"):
             try:
                 with codecs.open(origin_dir+file, 'r') as f:
-                    str = f.read().encode("utf-8")
-                    data = json.loads(str)
+                    ori_file = f.read().encode("utf-8")
+                    data = json.loads(ori_file)
             except ValueError:
                 print(" No JSON object could be decoded")
 
             for resp in data:
-                if resp and isinstance(resp, dict):
+                if resp :
                     p = resp.get("paragraphs")
                     if contain_punct(p):
                         resp["type"] = punct_type
-                        break
+                        continue
                     if diff_length_sentence(p):
                         resp["type"] = diff_type
-                        break
+                        continue
                     resp["type"] = clear_type
 
             with codecs.open((new_dir+file), 'w') as f:
